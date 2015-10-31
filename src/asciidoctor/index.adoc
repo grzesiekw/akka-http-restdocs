@@ -1,0 +1,16 @@
+.Hello
+
+include::generated-snippets/hello/curl-request.adoc[]
+
+include::generated-snippets/hello/http-request.adoc[]
+
+include::generated-snippets/hello/http-response.adoc[]
+
+.Hello with name
+
+include::generated-snippets/hello-with-name/curl-request.adoc[]
+
+include::generated-snippets/hello-with-name/http-request.adoc[]
+
+include::generated-snippets/hello-with-name/http-response.adoc[]
+
