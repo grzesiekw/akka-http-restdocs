@@ -1,77 +1,17 @@
 package gw.akka.http.doc
 
-import java.io.{File, BufferedWriter, FileWriter}
-import java.nio.file.Paths
-
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.testkit.RouteTest
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import com.typesafe.config.Config
+import gw.akka.http.doc.ADocGenerator.generateDoc
 
 trait RestDoc { this: RouteTest =>
-
-  case class Settings(description: String = "default")
 
   def doc(description: String):(HttpRequest, RouteTestResult) => Unit = doc(Settings(description))
 
   def doc(settings: Settings): (HttpRequest, RouteTestResult) => Unit = (request, result) => {
-    val docConfig = testConfig.getConfig("akka.http.doc")
+    val config = testConfig.getConfig("akka.http.doc")
 
-    val outputDirectory = docConfig.getString("output-directory")
-    val outputDirectoryFile = Paths.get(outputDirectory, settings.description).toFile
-
-    if (!outputDirectoryFile.exists()) {
-      outputDirectoryFile.mkdirs()
-    }
-
-    val outputDirectoryPath = outputDirectoryFile
-
-    write(outputDirectoryPath, "curl-request.adoc", documentCurl(docConfig, request))
-    write(outputDirectoryPath, "http-request.adoc", documentRequest(docConfig, request))
-    write(outputDirectoryPath, "http-response.adoc", documentResult(docConfig, result))
-  }
-
-  private def write(directory: File, file: String, content: String): Unit = {
-    val writer = new BufferedWriter(new FileWriter(new File(directory, file)))
-    try {
-      writer.write(content)
-    } finally {
-      writer.close()
-    }
-  }
-
-  private def documentCurl(config: Config, request: HttpRequest) = {
-    s"""
-      |[source,bash]
-      |----
-      |$$ curl 'http://${config.getString("host")}${request.uri}' -i
-      |----
-    """.stripMargin
-  }
-
-  private def documentRequest(config: Config, request: HttpRequest) = {
-    s"""
-      |[source,http]
-      |----
-      |${request.method.name} ${request.uri} ${request.protocol.value}
-      |Host: ${config.getString("host")}
-      |----
-    """.stripMargin
-  }
-
-  private def documentResult(config: Config, result: RouteTestResult) = {
-    val response = result.response
-
-    s"""
-      |[source,http]
-      |----
-      |${response.protocol.value} ${response.status.intValue()} ${response.status.defaultMessage()}
-      |ContentType: ${response.entity.contentType()}
-      |ContentLength: ${response.entity.contentLengthOption.map(_.toString).getOrElse("unknown")}
-      |
-      |${Unmarshal(response.entity).to[String].value.get.get}
-      |----
-    """.stripMargin
+    generateDoc(config, settings, request, result.response)
   }
 
   implicit class DocTransformation(requestWithResult: ((HttpRequest, RouteTestResult), Unit)) {
@@ -93,3 +33,5 @@ trait RestDoc { this: RouteTest =>
   }
 
 }
+
+case class Settings(description: String = "default")
