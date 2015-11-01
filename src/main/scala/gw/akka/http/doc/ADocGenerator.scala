@@ -3,14 +3,14 @@ package gw.akka.http.doc
 import java.io.{BufferedWriter, File, FileWriter}
 import java.nio.file.Paths
 
-import akka.http.scaladsl.model.{HttpHeader, HttpRequest, HttpResponse}
+import akka.http.scaladsl.model._
 import akka.stream.Materializer
 import com.typesafe.config.Config
 
 import scala.collection.immutable.Seq
 import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 object ADocGenerator {
 
@@ -40,17 +40,41 @@ object ADocGenerator {
     }
   }
 
-  private def documentCurl(config: Config, request: HttpRequest) = {
+  private def documentCurl(config: Config, request: HttpRequest)(implicit materializer: Materializer) = {
+    val method = if (!request.method.equals(HttpMethods.GET)) {
+      s"-X ${request.method.name} "
+    } else {
+      ""
+    }
+
+    val content = documentContent(request.entity).lines.map(_.trim).mkString("")
+
+    val dataHeader = if (content.nonEmpty) {
+      s"""--header "Content-Type: ${request.entity.contentType}""""
+    }
+
+    request.headers.foreach { header =>
+      println("curl H: " + header.name() + " " + header.value())
+    }
+
+    val data = if (content.nonEmpty) {
+      s"--data '$content' $dataHeader "
+    } else {
+      ""
+    }
+
     s"""
        |[source,bash]
        |----
-       |$$ curl 'http://${config.getString("host")}${request.uri}' -i
+       |$$ curl $method$data'http://${config.getString("host")}${request.uri}' -i
        |----
     """.stripMargin
   }
 
-  private def documentRequest(config: Config, request: HttpRequest) = {
+  private def documentRequest(config: Config, request: HttpRequest)(implicit materializer: Materializer) = {
     val headers = documentHeaders(request.headers)
+
+    val content = documentContent(request.entity)
 
     s"""
        |[source,http]
@@ -58,25 +82,30 @@ object ADocGenerator {
        |${request.method.name} ${request.uri} ${request.protocol.value}
        |Host: ${config.getString("host")}
        |$headers
+       |$content
        |----
     """.stripMargin
   }
 
   private def documentResult(config: Config, response: HttpResponse)(implicit materializer: Materializer) = {
-    val content = Await.result(response.entity.toStrict(duration).map(_.data.utf8String), duration)
+    val entity = response.entity
+    val content = documentContent(entity)
     val headers = documentHeaders(response.headers)
 
     s"""
        |[source,http]
        |----
        |${response.protocol.value} ${response.status.intValue()} ${response.status.defaultMessage()}
-       |Content-Type: ${response.entity.contentType()}
-       |Content-Length: ${response.entity.contentLengthOption.map(_.toString).getOrElse("unknown")}
+       |Content-Type: ${entity.contentType()}
+       |Content-Length: ${entity.contentLengthOption.map(_.toString).getOrElse("unknown")}
        |$headers
        |$content
        |----
     """.stripMargin
   }
+
+  def documentContent(entity: ResponseEntity)(implicit materializer: Materializer) =
+    Await.result(entity.toStrict(duration).map(_.data.utf8String), duration)
 
   private def documentHeaders(headers: Seq[HttpHeader]) = headers.map(h => h.name() + ": " + h.value()).mkString("\n")
 }
