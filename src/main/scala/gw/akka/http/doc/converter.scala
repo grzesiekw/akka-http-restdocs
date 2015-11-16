@@ -1,6 +1,6 @@
 package gw.akka.http.doc
 
-import akka.http.scaladsl.model.{ResponseEntity, HttpHeader, HttpResponse, HttpRequest}
+import akka.http.scaladsl.model._
 import akka.stream.Materializer
 import com.typesafe.config.Config
 
@@ -12,27 +12,32 @@ object converter {
   private val duration = 1.second
 
   case class Status(code: Int, message: String)
-  case class Header(name: String, value: String)
+  case class Header(name: String, value: String) {
+    override def toString = s"$name: $value"
+  }
 
   type Headers = Seq[Header]
 
-  case class DocRequest(host: String, uri: String, protocol: String, method: String, headers: Headers, body: String)
-  case class DocResponse(protocol: String, status: Status, headers: Headers, body: String)
+  case class Request(host: String, uri: String, protocol: String, method: String, headers: Headers, body: String)
+  case class Response(protocol: String, status: Status, headers: Headers, body: String)
 
-  def request(config: Config, request: HttpRequest)(implicit materializer: Materializer): DocRequest =
-    DocRequest(
+  def request(config: Config, request: HttpRequest)(implicit materializer: Materializer): Request = {
+    val requestEntity = entity(request.entity)
+
+    Request(
       config.getString("host"),
       request.uri.toString(),
       request.protocol.value,
       request.method.name,
-      headers(request.headers),
-      entity(request.entity).content
+      requestEntity.headers ++ headers(request.headers),
+      requestEntity.content
     )
+  }
 
-  def response(response: HttpResponse)(implicit materializer: Materializer): DocResponse = {
+  def response(response: HttpResponse)(implicit materializer: Materializer): Response = {
     val responseEntity = entity(response.entity)
 
-    DocResponse(
+    Response(
       response.protocol.value,
       Status(response.status.intValue(), response.status.defaultMessage()),
       responseEntity.headers ++ headers(response.headers),
@@ -43,13 +48,17 @@ object converter {
   private def headers(headers: Seq[HttpHeader]) =
     headers.map(header => Header(header.name(), header.value()))
 
-  case class Entity(contentType: String, content: String) {
-    def headers = Seq(
-      Header("Content-Type", contentType),
-      Header("Content-Length", content.length.toString)
-    )
+  private case class Entity(contentType: ContentType, content: String) {
+
+    def headers =
+      Seq(
+        (Header("Content-Type", contentType.toString()), ContentTypes.NoContentType.ne(contentType)),
+        (Header("Content-Length", content.length.toString), content.length > 0)
+      ).filter(_._2).map(_._1)
+
   }
 
   private def entity(entity: ResponseEntity)(implicit materializer: Materializer): Entity =
-    Await.result(entity.toStrict(duration).map(strict => Entity(entity.contentType().toString(), strict.data.utf8String)), duration)
+    Await.result(entity.toStrict(duration).map(strict => Entity(entity.contentType, strict.data.utf8String)), duration)
+
 }

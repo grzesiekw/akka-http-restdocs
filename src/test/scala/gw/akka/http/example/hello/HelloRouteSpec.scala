@@ -1,11 +1,13 @@
 package gw.akka.http.example.hello
 
+
 import akka.http.scaladsl.model.StatusCodes.{BadRequest, OK}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import gw.akka.http.doc.RestDoc
 import org.scalatest.{Matchers, WordSpec}
 
-class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest with HelloRoute with RestDoc {
+class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest
+  with HelloRoute with RestDoc {
 
   "Hello service" should {
     "say hello to the World (default)" in {
@@ -25,6 +27,8 @@ class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest with
         status shouldBe OK
       } ~~> doc("hello-set-name")
     }
+
+    Post("/hello", Name("Me"))
 
     "not set default hello too short name" in {
       Post("/hello", Name("Me")) ~~> route ~~> check {

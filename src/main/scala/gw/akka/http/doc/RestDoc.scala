@@ -2,23 +2,26 @@ package gw.akka.http.doc
 
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.testkit.RouteTest
-import gw.akka.http.doc.writer.Writer
 
 trait RestDoc { this: RouteTest =>
   import document._
+  import generator._
+  import asciidoctor._
+
+  val gen = generator(Seq(requestExt, responseExt, curlExt))(formatter)
 
   def doc(name: String): (HttpRequest, RouteTestResult) => Unit = (request, result) => {
     val config = testConfig.getConfig("akka.http.doc")
 
-    val settings = Settings.default
     val writer = Writer(config.getString("output-directory"))
 
-    val docRequest = converter.request(config, request)
-    val docResponse = converter.response(result.response)
+    val genRequest = converter.request(config, request)
+    val genResponse = converter.response(result.response)
 
-    val documents = settings.generator(TestCase(Description(name), docRequest, docResponse))
+    gen(Test(genRequest, genResponse)).foreach { document =>
+      writer.write(document, name, extension)
+    }
 
-    documents.foreach { writer.write }
   }
 
   implicit class DocTransformation(requestWithResult: ((HttpRequest, RouteTestResult), Unit)) {

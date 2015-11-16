@@ -1,44 +1,27 @@
 package gw.akka.http.doc
 
-import gw.akka.http.doc.converter.{DocRequest, DocResponse}
+import gw.akka.http.doc.converter.{Request, Response}
 
 object document {
 
-  case class Description(name: String)
-  case class TestCase(description: Description, request: DocRequest, response: DocResponse)
+  case class Test(request: Request, response: Response)
+  case class Document(name: String, kind: String, content: String)
 
-  case class Details(name: String, kind: Symbol, source: Symbol, extension: String) {
-    def path = name
-    def file = s"${kind.name}.$extension"
-
-  }
-  case class Document(details: Details, content: String)
-
-  type Generator = TestCase => Seq[Document]
-  type Extractor = TestCase => Document
+  type Generator = Test => Seq[Document]
+  type Extractor = Test => Document
   type Formatter = Document => Document
 
-  case class Settings private(extractors: Seq[Extractor], formatter: Formatter) {
-    def generator: Generator = (testCase: TestCase) => extractors.map(_ (testCase)).map(formatter)
-  }
-
-  object Settings {
-    import formatter._
-    import generator._
-
-    def default = Settings(Seq(request, response, curl), asciidoctor)
-  }
+  def generator(extractors: Seq[Extractor])(formatter: Formatter): Generator =
+    (test: Test) => extractors.map(_.andThen(formatter)(test))
 
   object generator {
-    val bash = 'bash
-    val http = 'http
 
-    val requestKind = 'request
-    val request: Extractor = (testCase: TestCase) => {
-      val request = testCase.request
+    val requestExt: Extractor = (test: Test) => {
+      val request = test.request
 
       Document(
-        Details(testCase.description.name, requestKind, http, ""),
+        "http-request",
+        "http",
         s"""
            |${request.method} ${request.uri} ${request.protocol}
            |Host: ${request.host}
@@ -48,55 +31,64 @@ object document {
       )
     }
 
-    val responseKind = 'response
-    val response: Extractor = (testCase: TestCase) => {
-      val response = testCase.response
+    val responseExt: Extractor = (test: Test) => {
+      val response = test.response
 
       Document(
-        Details(testCase.description.name, responseKind, http, ""),
+        "http-response",
+        "http",
         s"""
            |${response.protocol} ${response.status.code} ${response.status.message}
-           |${response.headers.map(header => s"${header.name}: ${header.value}").mkString("\n")}.
+           |${response.headers.map(header => s"${header.name}: ${header.value}").mkString("\n")}
+           |
            |${response.body}
         """.stripMargin
       )
     }
 
-    val curlKind = 'curl
-    val curl: Extractor = (testCase: TestCase) => {
-      val request = testCase.request
+    val curlExt: Extractor = (test: Test) => {
+      val request = test.request
 
       val content = request.body.lines.map(_.trim).mkString("")
 
-      val contentType = request.headers.find(header => header.name.equals("Content-Type")).map { contentType =>
-        s"""--header "Content-Type: $contentType"""
-      }.getOrElse("*/*")
+      val headers = request.headers.map { header =>
+        if ("Content-Length".eq(header.name)) {
+          header.copy(value = content.length.toString)
+        } else {
+          header
+        }
+      }.map { header =>
+        s"""--header "$header""""
+      }.mkString("", " ", " ")
 
       val contentDescription = if (content.nonEmpty) {
-        s"--data '$content' $contentType "
+        s"--data '$content' $headers "
       } else {
         ""
       }
 
       Document(
-        Details(testCase.description.name, curlKind, bash, ""),
+        "curl-request",
+        "bash",
         s"""
-           |$$ curl -X ${request.method}$contentDescription'http://${request.host}${request.uri}' -i
+           |$$ curl -X ${request.method} $contentDescription'http://${request.host}${request.uri}' -i
         """.
           stripMargin
       )
     }
-
-    val generators = Map(requestKind -> request, responseKind -> response, curlKind -> curl)
   }
 
-  object formatter {
-    val asciidoctor: Formatter = (document: Document) => {
-      document.copy(document.details.copy(extension = "adoc"), content =
+  object asciidoctor {
+    val extension = "adoc"
+
+    val formatter: Formatter = (document: Document) => {
+      document.copy(content =
         s"""
-           |[source,${document.details.source.name}]
+           |[source,${document.kind}]
+           |----
            |${document.content}
-        """.stripMargin
+           |----
+         """.stripMargin
       )
     }
   }

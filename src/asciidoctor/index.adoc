@@ -14,3 +14,18 @@ include::generated-snippets/hello-with-name/http-request.adoc[]
 
 include::generated-snippets/hello-with-name/http-response.adoc[]
 
+.Hello set name
+
+include::generated-snippets/hello-set-name/curl-request.adoc[]
+
+include::generated-snippets/hello-set-name/http-request.adoc[]
+
+include::generated-snippets/hello-set-name/http-response.adoc[]
+
+.Hello set too short name
+
+include::generated-snippets/hello-set-too-short-name/curl-request.adoc[]
+
+include::generated-snippets/hello-set-too-short-name/http-request.adoc[]
+
+include::generated-snippets/hello-set-too-short-name/http-response.adoc[]
