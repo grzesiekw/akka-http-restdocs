@@ -1,8 +1,10 @@
 package gw.akka.http.doc
 
+import gw.akka.http.doc.RestDoc.Settings
 import gw.akka.http.doc.converter.{Request, Response}
 
 object document {
+  import generators._
 
   case class Test(request: Request, response: Response)
   case class Document(name: String, kind: String, content: String)
@@ -11,10 +13,23 @@ object document {
   type Extractor = Test => Document
   type Formatter = Document => Document
 
+  def generator(settings: Settings): Generator =
+    generator(settings.ExtractorNames.map(extractor))(formatter(settings.FormatterName))
+
   def generator(extractors: Seq[Extractor])(formatter: Formatter): Generator =
     (test: Test) => extractors.map(_.andThen(formatter)(test))
 
-  object generator {
+  object generators {
+
+    def extractor(name: String) = name match {
+      case "request" => requestExt
+      case "response" => responseExt
+      case "curl" => curlExt
+    }
+
+    def formatter(name: String) = name match {
+      case "asciidoctor" => asciidoctor
+    }
 
     val requestExt: Extractor = (test: Test) => {
       val request = test.request
@@ -76,12 +91,8 @@ object document {
           stripMargin
       )
     }
-  }
 
-  object asciidoctor {
-    val extension = "adoc"
-
-    val formatter: Formatter = (document: Document) => {
+    val asciidoctor: Formatter = (document: Document) => {
       document.copy(content =
         s"""
            |[source,${document.kind}]
@@ -92,5 +103,4 @@ object document {
       )
     }
   }
-
 }

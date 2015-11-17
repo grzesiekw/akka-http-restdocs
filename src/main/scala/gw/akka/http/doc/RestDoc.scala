@@ -2,26 +2,24 @@ package gw.akka.http.doc
 
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.testkit.RouteTest
+import com.typesafe.config.Config
+import gw.akka.http.doc.RestDoc.Settings
 
 trait RestDoc { this: RouteTest =>
   import document._
-  import generator._
-  import asciidoctor._
 
-  val gen = generator(Seq(requestExt, responseExt, curlExt))(formatter)
+  val settings = new Settings(testConfig)
+  val gen = generator(settings)
 
   def doc(name: String): (HttpRequest, RouteTestResult) => Unit = (request, result) => {
-    val config = testConfig.getConfig("akka.http.doc")
-
-    val writer = Writer(config.getString("output-directory"))
-
-    val genRequest = converter.request(config, request)
+    val genRequest = converter.request(settings, request)
     val genResponse = converter.response(result.response)
 
-    gen(Test(genRequest, genResponse)).foreach { document =>
-      writer.write(document, name, extension)
-    }
+    val writer = Writer(settings.OutputDirectory)
 
+    gen(Test(genRequest, genResponse)).foreach { document =>
+      writer.write(document, name, settings.FormatterExtension)
+    }
   }
 
   implicit class DocTransformation(requestWithResult: ((HttpRequest, RouteTestResult), Unit)) {
@@ -42,4 +40,19 @@ trait RestDoc { this: RouteTest =>
     }
   }
 
+}
+
+object RestDoc {
+  class Settings(config: Config) {
+    import scala.collection.JavaConversions._
+
+    val Host = config.getString("akka.http.doc.request.host")
+
+    val ExtractorNames = config.getStringList("akka.http.doc.extractors").to[Seq]
+
+    val FormatterName = config.getString("akka.http.doc.formatter.type")
+    val FormatterExtension = config.getString("akka.http.doc.formatter.extension")
+
+    val OutputDirectory = config.getString("akka.http.doc.writer.output-directory")
+  }
 }

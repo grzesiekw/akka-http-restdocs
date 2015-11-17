@@ -1,6 +1,5 @@
 package gw.akka.http.example.hello
 
-
 import akka.http.scaladsl.model.StatusCodes.{BadRequest, OK}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import gw.akka.http.doc.RestDoc

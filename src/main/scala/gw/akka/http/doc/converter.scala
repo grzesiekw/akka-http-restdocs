@@ -2,7 +2,6 @@ package gw.akka.http.doc
 
 import akka.http.scaladsl.model._
 import akka.stream.Materializer
-import com.typesafe.config.Config
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -21,11 +20,11 @@ object converter {
   case class Request(host: String, uri: String, protocol: String, method: String, headers: Headers, body: String)
   case class Response(protocol: String, status: Status, headers: Headers, body: String)
 
-  def request(config: Config, request: HttpRequest)(implicit materializer: Materializer): Request = {
+  def request(settings: RestDoc.Settings, request: HttpRequest)(implicit materializer: Materializer): Request = {
     val requestEntity = entity(request.entity)
 
     Request(
-      config.getString("host"),
+      settings.Host,
       request.uri.toString(),
       request.protocol.value,
       request.method.name,
