@@ -7,6 +7,7 @@ import gw.akka.http.doc.RestDoc.Settings
 
 trait RestDoc { this: RouteTest =>
   import document._
+  import writer._
 
   val settings = new Settings(testConfig)
   val gen = generator(settings)
@@ -15,10 +16,8 @@ trait RestDoc { this: RouteTest =>
     val genRequest = converter.request(settings, request)
     val genResponse = converter.response(result.response)
 
-    val writer = Writer(settings.OutputDirectory)
-
     gen(Test(genRequest, genResponse)).foreach { document =>
-      writer.write(document, name, settings.FormatterExtension)
+      write(settings, name, document)
     }
   }
 
