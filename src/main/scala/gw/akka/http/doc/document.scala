@@ -7,17 +7,16 @@ object document {
   import generators._
 
   case class Test(request: Request, response: Response)
-  case class Document(name: String, kind: String, content: String)
+  case class Document(name: String, content: String)
 
   type Generator = Test => Seq[Document]
   type Extractor = Test => Document
-  type Formatter = Document => Document
 
   def generator(settings: Settings): Generator =
-    generator(settings.ExtractorNames.map(extractor))(formatter(settings.FormatterName))
+    generator(settings.ExtractorNames.map(extractor))
 
-  def generator(extractors: Seq[Extractor])(formatter: Formatter): Generator =
-    (test: Test) => extractors.map(_.andThen(formatter)(test))
+  def generator(extractors: Seq[Extractor]): Generator =
+    (test: Test) => extractors.map(_(test))
 
   object generators {
 
@@ -25,10 +24,7 @@ object document {
       case "request" => requestExt
       case "response" => responseExt
       case "curl" => curlExt
-    }
-
-    def formatter(name: String) = name match {
-      case "asciidoctor" => asciidoctor
+      case "path-parameters" => pathParametersExt
     }
 
     val requestExt: Extractor = (test: Test) => {
@@ -36,13 +32,30 @@ object document {
 
       Document(
         "http-request",
-        "http",
         s"""
+           |[source, http]
+           |----
            |${request.method} ${request.uri} ${request.protocol}
            |Host: ${request.host}
            |${request.headers.map(header => s"${header.name}: ${header.value}").mkString("\n")}
            |${request.body}
+           |----
         """.stripMargin
+      )
+    }
+
+    val pathParametersExt: Extractor = (test: Test) => {
+      val params: Seq[(String, String)] = test.request.pathParams
+
+      Document(
+        "http-request-path-parameters",
+        s"""
+           |.Table Path params
+           ||===
+           ||Name |Value
+           |${params.map(param => s"|${param._1} |${param._2}\n").mkString("\n")}
+           ||===
+         """.stripMargin
       )
     }
 
@@ -51,12 +64,14 @@ object document {
 
       Document(
         "http-response",
-        "http",
         s"""
+           |[source, http]
+           |----
            |${response.protocol} ${response.status.code} ${response.status.message}
            |${response.headers.map(header => s"${header.name}: ${header.value}").mkString("\n")}
            |
            |${response.body}
+           |----
         """.stripMargin
       )
     }
@@ -84,22 +99,13 @@ object document {
 
       Document(
         "curl-request",
-        "bash",
         s"""
+           |[source,bash]
+           |----
            |$$ curl -X ${request.method} $contentDescription'http://${request.host}${request.uri}' -i
+           |----
         """.
           stripMargin
-      )
-    }
-
-    val asciidoctor: Formatter = (document: Document) => {
-      document.copy(content =
-        s"""
-           |[source,${document.kind}]
-           |----
-           |${document.content}
-           |----
-         """.stripMargin
       )
     }
   }
