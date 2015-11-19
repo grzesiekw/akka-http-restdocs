@@ -1,0 +1,23 @@
+= akka-http-restdoc
+
+== Example
+
+(from: src/test/scala/gw/akka/http/example/hello/HelloRouteSpec.scala)
+
+[source, scala]
+----
+class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest
+  with HelloRoute with RestDoc { <1>
+
+  "Hello service" should {
+    "say hello to the World (default)" in {
+      Get("/hello") ~~> route ~~> check { <2>
+        responseAs[String] shouldEqual "Hello World!"
+      } ~~> doc("hello") <3>
+    }
+  }
+}
+----
+<1> with RestDoc trait
+<2> replace ~> with ~~>
+<3> add doc("test-name")
