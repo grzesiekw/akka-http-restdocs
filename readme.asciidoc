@@ -1,4 +1,4 @@
-= akka-http-restdoc
+= akka-http-restdocs
 
 == Example
 
