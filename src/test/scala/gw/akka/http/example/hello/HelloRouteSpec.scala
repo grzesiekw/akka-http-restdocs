@@ -27,6 +27,12 @@ class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest
       } ~~> doc("hello-with-path-name")
     }
 
+    "say path Hi to path John" in {
+      RestGet("/{message}/{name}", "hi", "John") ~~> route ~~> check {
+        responseAs[String] shouldEqual "Hi John!"
+      } ~~> doc("path-message-with-path-name")
+    }
+
     "set default hello name" in {
       Post("/hello", Name("Jane")) ~~> route ~~> check {
         status shouldBe OK

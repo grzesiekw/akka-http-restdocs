@@ -38,6 +38,7 @@ object document {
            |${request.method} ${request.uri} ${request.protocol}
            |Host: ${request.host}
            |${request.headers.map(header => s"${header.name}: ${header.value}").mkString("\n")}
+           |
            |${request.body}
            |----
         """.stripMargin
@@ -45,15 +46,16 @@ object document {
     }
 
     val pathParametersExt: Extractor = (test: Test) => {
-      val params: Seq[(String, String)] = test.request.pathParams
+      val params = test.request.pathParams
 
       Document(
         "http-request-path-parameters",
         s"""
-           |.Table Path params
+           |.Path parameters
+           |[format="csv", options="header"]
            ||===
-           ||Name |Value
-           |${params.map(param => s"|${param._1} |${param._2}\n").mkString("\n")}
+           |Name,Value,Type
+           |${params.map(param => s"${param._1},${param._2},${param._2.getClass.getName}").mkString("\n")}
            ||===
          """.stripMargin
       )

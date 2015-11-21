@@ -24,6 +24,17 @@ include::generated-snippets/hello-with-path-name/http-request-path-parameters.ad
 
 include::generated-snippets/hello-with-path-name/http-response.adoc[]
 
+.path message with path name
+
+include::generated-snippets/path-message-with-path-name/curl-request.adoc[]
+
+include::generated-snippets/path-message-with-path-name/http-request.adoc[]
+
+include::generated-snippets/path-message-with-path-name/http-request-path-parameters.adoc[]
+
+include::generated-snippets/path-message-with-path-name/http-response.adoc[]
+
+
 .Hello set name
 
 include::generated-snippets/hello-set-name/curl-request.adoc[]

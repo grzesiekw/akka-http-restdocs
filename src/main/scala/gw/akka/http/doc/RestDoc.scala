@@ -5,7 +5,9 @@ import akka.http.scaladsl.testkit.RouteTest
 import com.typesafe.config.Config
 import gw.akka.http.doc.RestDoc.Settings
 
-trait RestDoc extends RestRequestBuilding { this: RouteTest =>
+trait RestDoc extends RestRequestBuilding {
+  this: RouteTest =>
+
   import document._
   import writer._
 
@@ -21,14 +23,14 @@ trait RestDoc extends RestRequestBuilding { this: RouteTest =>
     }
   }
 
-  implicit class DocTransformation(requestWithResult: ((RestRequest, RouteTestResult), Unit)) {
-    def ~~>[A](f: (RestRequest, RouteTestResult) => A) = {
+  implicit class DocTransformation[R](requestWithResult: ((R, RouteTestResult), Unit)) {
+    def ~~>[A](f: (R, RouteTestResult) => A) = {
       f(requestWithResult._1._1, requestWithResult._1._2)
     }
   }
 
-  implicit class RequestValueWithTransformation[A](requestWithValue: (RestRequest, A)) {
-    def ~~>[B](f: A => B): ((RestRequest, A), B) = {
+  implicit class RequestValueWithTransformation[A, R](requestWithValue: (R, A)) {
+    def ~~>[B](f: A => B): ((R, A), B) = {
       (requestWithValue, f(requestWithValue._2))
     }
   }
@@ -48,9 +50,9 @@ trait RestDoc extends RestRequestBuilding { this: RouteTest =>
 }
 
 object RestDoc {
-  class Settings(config: Config) {
-    import scala.collection.JavaConversions._
+  import scala.collection.JavaConversions._
 
+  class Settings(config: Config) {
     val Host = config.getString("akka.http.doc.request.host")
 
     val ExtractorNames = config.getStringList("akka.http.doc.extractors").to[Seq]
@@ -59,4 +61,5 @@ object RestDoc {
 
     val OutputDirectory = config.getString("akka.http.doc.writer.output-directory")
   }
+
 }

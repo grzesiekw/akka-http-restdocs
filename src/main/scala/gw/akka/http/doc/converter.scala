@@ -18,7 +18,7 @@ object converter {
   type Headers = Seq[Header]
 
   case class Request(host: String, uri: String, protocol: String, method: String, headers: Headers, body: String,
-                    pathParams: Seq[(String, String)])
+                    pathParams: Seq[(String, Any)])
   case class Response(protocol: String, status: Status, headers: Headers, body: String)
 
   def request(settings: RestDoc.Settings, restRequest: RestRequest)(implicit materializer: Materializer): Request = {
