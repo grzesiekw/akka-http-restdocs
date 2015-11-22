@@ -1,23 +1,34 @@
 package gw.akka.http.doc
 
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpMethod}
+import akka.http.scaladsl.client.RequestBuilding
+import akka.http.scaladsl.model.Uri.Path
+import akka.http.scaladsl.model._
 
 case class RestRequest(request: HttpRequest, params: Seq[(String, Any)])
 
 trait RestRequestBuilding {
+  this: RequestBuilding =>
 
-  class RestRequestBuilder(method: HttpMethod) {
+  implicit class ParametrizedRequestBuilder(request: HttpRequest) {
     private def uriParams(uri: String) = "(\\{[^}]*})".r.findAllIn(uri).map(s => s.substring(1, s.length - 1)).to[Seq]
 
-    def apply(uri: String, params: Any*): RestRequest = {
-      val paramsWithValues = uriParams(uri).zip(params)
+    private def pathString(path: Path, fullPath: String): String = {
+      if (path.isEmpty) {
+        fullPath
+      } else {
+        pathString(path.tail, fullPath + path.head)
+      }
+    }
 
-      val fullUri = paramsWithValues.foldLeft(uri)((uri, paramWithValue) => uri.replace(s"{${paramWithValue._1}}", paramWithValue._2.toString))
+    def params(parameters: Any*) = {
+      val uri = pathString(request.uri.path, "")
 
-      RestRequest(HttpRequest(method, fullUri), paramsWithValues)
+      val parametersWithValues = uriParams(uri.toString).zip(parameters)
+
+      val fullUri = parametersWithValues.foldLeft(uri)((uri, paramWithValue) => uri.replace(s"{${paramWithValue._1}}", paramWithValue._2.toString))
+
+      RestRequest(request.copy(uri = Uri(fullUri)), parametersWithValues)
     }
   }
-
-  val RestGet = new RestRequestBuilder(HttpMethods.GET)
 
 }

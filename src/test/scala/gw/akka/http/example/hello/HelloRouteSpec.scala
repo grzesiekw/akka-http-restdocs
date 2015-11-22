@@ -22,13 +22,13 @@ class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest
     }
 
     "say hello to path John" in {
-      RestGet("/hello/{name}", "John") ~~> route ~~> check {
+      Get("/hello/{name}").params("John") ~~> route ~~> check {
         responseAs[String] shouldEqual "Hello John!"
       } ~~> doc("hello-with-path-name")
     }
 
     "say path Hi to path John" in {
-      RestGet("/{message}/{name}", "hi", "John") ~~> route ~~> check {
+      Get("/{message}/{name}").params("hi", "John") ~~> route ~~> check {
         responseAs[String] shouldEqual "Hi John!"
       } ~~> doc("path-message-with-path-name")
     }
