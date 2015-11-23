@@ -1,33 +1,43 @@
 package gw.akka.http.doc
 
-import akka.http.scaladsl.client.RequestBuilding
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
+
+import scala.annotation.tailrec
 
 case class RestRequest(request: HttpRequest, params: Seq[(String, Any)])
 
 trait RestRequestBuilding {
-  this: RequestBuilding =>
 
   implicit class ParametrizedRequestBuilder(request: HttpRequest) {
-    private def uriParams(uri: String) = "(\\{[^}]*})".r.findAllIn(uri).map(s => s.substring(1, s.length - 1)).to[Seq]
-
-    private def pathString(path: Path, fullPath: String): String = {
-      if (path.isEmpty) {
-        fullPath
-      } else {
-        pathString(path.tail, fullPath + path.head)
-      }
-    }
 
     def params(parameters: Any*) = {
-      val uri = pathString(request.uri.path, "")
+      val (resolvedPath, namedParameters) = resolvePath(request.uri.path, parameters)
 
-      val parametersWithValues = uriParams(uri.toString).zip(parameters)
+      RestRequest(request.copy(uri = request.uri.copy(path = resolvedPath)), namedParameters)
+    }
 
-      val fullUri = parametersWithValues.foldLeft(uri)((uri, paramWithValue) => uri.replace(s"{${paramWithValue._1}}", paramWithValue._2.toString))
+    private type Params = Seq[(String, Any)]
 
-      RestRequest(request.copy(uri = Uri(fullUri)), parametersWithValues)
+    private def resolvePath(path: Path, parameters: Seq[Any]) = {
+      @tailrec
+      def go(path: Path, params: Seq[Any], resolvedPath: Path, namedParams: Params): (Path, Params) = {
+        def stripBrackets(pathElement: String) = pathElement.substring(1, pathElement.length - 1)
+
+        if (path.isEmpty) {
+          (resolvedPath, namedParams)
+        } else {
+          val pathElement = path.head.toString
+
+          if (pathElement.matches("^\\{[^}]+}")) {
+            go(path.tail, params.tail, resolvedPath + params.head.toString, namedParams :+ (stripBrackets(pathElement), params.head))
+          } else {
+            go(path.tail, params, resolvedPath + pathElement, namedParams)
+          }
+        }
+      }
+
+      go(path, parameters, Path.Empty, Seq())
     }
   }
 
