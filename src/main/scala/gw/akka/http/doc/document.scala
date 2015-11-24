@@ -37,8 +37,7 @@ object document {
            |----
            |${request.method} ${request.uri} ${request.protocol}
            |Host: ${request.host}
-           |${request.headers.map(header => s"${header.name}: ${header.value}").mkString("\n")}
-           |
+           |${request.headers.map(header => s"${header.name}: ${header.value}").mkString("\n").eolnIfNonEmpty}
            |${request.body}
            |----
         """.stripMargin
@@ -70,8 +69,7 @@ object document {
            |[source, http]
            |----
            |${response.protocol} ${response.status.code} ${response.status.message}
-           |${response.headers.map(header => s"${header.name}: ${header.value}").mkString("\n")}
-           |
+           |${response.headers.map(header => s"${header.name}: ${header.value}").mkString("\n").eolnIfNonEmpty}
            |${response.body}
            |----
         """.stripMargin
@@ -109,6 +107,10 @@ object document {
         """.
           stripMargin
       )
+    }
+
+    implicit class Eolns(s: String) {
+      def eolnIfNonEmpty = if (s.isEmpty) s else s + "\n"
     }
   }
 }
