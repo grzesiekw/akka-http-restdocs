@@ -21,13 +21,23 @@ class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest
       } ~~> doc("hello-with-name")
     }
 
+    "say hello to path John" in {
+      Get("/hello/{name}").params("John") ~~> route ~~> check {
+        responseAs[String] shouldEqual "Hello John!"
+      } ~~> doc("hello-with-path-name")
+    }
+
+    "say path Hi to path John" in {
+      Get("/{message}/{name}").params("hi", "John") ~~> route ~~> check {
+        responseAs[String] shouldEqual "Hi John!"
+      } ~~> doc("path-message-with-path-name")
+    }
+
     "set default hello name" in {
       Post("/hello", Name("Jane")) ~~> route ~~> check {
         status shouldBe OK
       } ~~> doc("hello-set-name")
     }
-
-    Post("/hello", Name("Me"))
 
     "not set default hello too short name" in {
       Post("/hello", Name("Me")) ~~> route ~~> check {

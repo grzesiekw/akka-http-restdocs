@@ -17,10 +17,14 @@ object converter {
 
   type Headers = Seq[Header]
 
-  case class Request(host: String, uri: String, protocol: String, method: String, headers: Headers, body: String)
+  case class Request(host: String, uri: String, protocol: String, method: String, headers: Headers, body: String,
+                    pathParams: Seq[(String, Any)])
   case class Response(protocol: String, status: Status, headers: Headers, body: String)
 
-  def request(settings: RestDoc.Settings, request: HttpRequest)(implicit materializer: Materializer): Request = {
+  def request(settings: RestDoc.Settings, restRequest: RestRequest)(implicit materializer: Materializer): Request = {
+    val request = restRequest.request
+    val pathParams = restRequest.params
+
     val requestEntity = entity(request.entity)
 
     Request(
@@ -29,7 +33,8 @@ object converter {
       request.protocol.value,
       request.method.name,
       requestEntity.headers ++ headers(request.headers),
-      requestEntity.content
+      requestEntity.content,
+      pathParams
     )
   }
 

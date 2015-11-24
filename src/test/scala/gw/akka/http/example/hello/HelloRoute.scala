@@ -17,15 +17,15 @@ trait HelloRoute extends HelloProtocol with SprayJsonSupport {
   implicit val materializer: Materializer
 
   val route =
-    pathPrefix("hello") {
+    pathPrefix(Segment.map(_.capitalize)) { message =>
       (path(Segment) & get) { name =>
         complete {
-          s"Hello $name!"
+          s"$message $name!"
         }
       } ~
       (pathEnd & get) {
         complete {
-          "Hello World!"
+          s"$message World!"
         }
       } ~
       post {
