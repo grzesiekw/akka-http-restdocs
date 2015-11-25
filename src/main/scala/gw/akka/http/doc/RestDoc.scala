@@ -3,15 +3,14 @@ package gw.akka.http.doc
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.testkit.RouteTest
 import com.typesafe.config.Config
-import gw.akka.http.doc.RestDoc.Settings
 
 trait RestDoc extends RestRequestBuilding {
   this: RouteTest =>
 
-  import document._
+  import documentation._
   import writer._
 
-  val settings = new Settings(testConfig)
+  val settings = RestDocSettings(testConfig)
   val gen = generator(settings)
 
   def doc(name: String): (RestRequest, RouteTestResult) => Unit = (request, result) => {
@@ -49,17 +48,15 @@ trait RestDoc extends RestRequestBuilding {
 
 }
 
-object RestDoc {
+case class RestDocSettings(config: Config) {
+
   import scala.collection.JavaConversions._
 
-  class Settings(config: Config) {
-    val Host = config.getString("akka.http.doc.request.host")
+  val Host = config.getString("akka.http.doc.request.host")
 
-    val ExtractorNames = config.getStringList("akka.http.doc.extractors").to[Seq]
+  val ExtractorNames = config.getStringList("akka.http.doc.extractors").to[Seq]
 
-    val FormatterExtension = config.getString("akka.http.doc.formatter.extension")
+  val FormatterExtension = config.getString("akka.http.doc.formatter.extension")
 
-    val OutputDirectory = config.getString("akka.http.doc.writer.output-directory")
-  }
-
+  val OutputDirectory = config.getString("akka.http.doc.writer.output-directory")
 }

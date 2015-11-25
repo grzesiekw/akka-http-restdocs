@@ -3,11 +3,10 @@ package gw.akka.http.doc
 import java.io.{BufferedWriter, File, FileWriter}
 import java.nio.file.Paths
 
-import gw.akka.http.doc.RestDoc.Settings
-import gw.akka.http.doc.document.Document
+import gw.akka.http.doc.documentation.Document
 
 object writer {
-  def write(settings: Settings, name: String, document: Document): Unit = {
+  def write(settings: RestDocSettings, name: String, document: Document): Unit = {
     val documentPath = Paths.get(settings.OutputDirectory, name)
     val documentDirectory = documentPath.toFile
 

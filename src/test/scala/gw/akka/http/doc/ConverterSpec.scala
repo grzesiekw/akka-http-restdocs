@@ -13,9 +13,8 @@ import org.scalatest.{Matchers, WordSpec}
 import scala.collection.immutable.Seq
 
 class ConverterSpec extends WordSpec with Matchers with ScalatestRouteTest {
-  import RestDoc._
 
-  val settings = new Settings(ConfigFactory.load())
+  val settings = RestDocSettings(ConfigFactory.load())
 
   val body = "content"
   val docRequest = converter.request(settings, RestRequest(Post("/hello", body), Seq()))

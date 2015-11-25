@@ -4,39 +4,39 @@ import org.scalatest.{Matchers, WordSpec}
 
 class GeneratorSpec extends WordSpec with Matchers {
 
+  import documentation._
+  import extractor._
   import requests._
-  import document._
-  import generators._
 
   "Request generator" should {
     "create all default documents" in {
-      val documents = generator(Seq(requestExt, responseExt, curlExt, pathParametersExt))(test)
+      val documents = generator(extractor.all)(test)
 
-      documents.map(_.name) shouldBe Seq("http-request", "http-response", "curl-request", "http-request-path-parameters")
+      documents.map(_.name) shouldBe Seq("http-request", "http-response", "curl-request", "path-parameters")
     }
 
     "create request document" in {
-      val document = requestExt(test)
+      val document = HttpRequestExtractor(test)
 
       document.name shouldBe "http-request"
     }
 
     "create response document" in {
-      val document = responseExt(test)
+      val document = HttpResponseExtractor(test)
 
       document.name shouldBe "http-response"
     }
 
     "create curl request document" in {
-      val document = curlExt(test)
+      val document = CurlExtractor(test)
 
       document.name shouldBe "curl-request"
     }
 
     "create path parameters document" in {
-      val document = pathParametersExt(test)
+      val document = PathParametersExtractor(test)
 
-      document.name shouldBe "http-request-path-parameters"
+      document.name shouldBe "path-parameters"
     }
   }
 

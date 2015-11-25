@@ -1,7 +1,7 @@
 package gw.akka.http.doc
 
 import gw.akka.http.doc.converter.{Status, Response, Request}
-import gw.akka.http.doc.document.Test
+import documentation.Test
 
 object requests {
 

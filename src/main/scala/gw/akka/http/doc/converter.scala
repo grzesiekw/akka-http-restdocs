@@ -21,7 +21,7 @@ object converter {
                     pathParams: Seq[(String, Any)])
   case class Response(protocol: String, status: Status, headers: Headers, body: String)
 
-  def request(settings: RestDoc.Settings, restRequest: RestRequest)(implicit materializer: Materializer): Request = {
+  def request(settings: RestDocSettings, restRequest: RestRequest)(implicit materializer: Materializer): Request = {
     val request = restRequest.request
     val pathParams = restRequest.params
 
