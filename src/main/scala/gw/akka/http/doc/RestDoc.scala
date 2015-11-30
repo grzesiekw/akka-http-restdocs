@@ -1,23 +1,22 @@
 package gw.akka.http.doc
 
 import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.testkit.RouteTest
 import com.typesafe.config.Config
+
+import scala.annotation.tailrec
 
 trait RestDoc extends RestRequestBuilding {
   this: RouteTest =>
 
-  import documentation._
   import writer._
 
   val settings = RestDocSettings(testConfig)
-  val gen = generator(settings)
+  val generator = RestDocGenerator(settings)
 
   def doc(name: String): (RestRequest, RouteTestResult) => Unit = (request, result) => {
-    val genRequest = converter.request(settings, request)
-    val genResponse = converter.response(result.response)
-
-    gen(Test(genRequest, genResponse)).foreach { document =>
+    generator.generate(RestTest(settings, request, result.response)).foreach { document =>
       write(settings, name, document)
     }
   }

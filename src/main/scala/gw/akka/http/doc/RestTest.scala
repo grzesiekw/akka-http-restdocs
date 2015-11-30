@@ -7,21 +7,25 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-object converter {
+case class Status(code: Int, message: String)
+case class Header(name: String, value: String) {
+  override def toString = s"$name: $value"
+}
+
+case class Request(host: String, uri: String, protocol: String, method: String, headers: Seq[Header], body: String,
+                   pathParams: Seq[(String, Any)])
+case class Response(protocol: String, status: Status, headers: Seq[Header], body: String)
+
+case class RestTest(request: Request, response: Response)
+
+object RestTest {
   private val duration = 1.second
 
-  case class Status(code: Int, message: String)
-  case class Header(name: String, value: String) {
-    override def toString = s"$name: $value"
+  def apply(settings: RestDocSettings, restRequest: RestRequest, restResponse: HttpResponse)(implicit materializer: Materializer): RestTest = {
+    RestTest(request(settings, restRequest), response(restResponse))
   }
 
-  type Headers = Seq[Header]
-
-  case class Request(host: String, uri: String, protocol: String, method: String, headers: Headers, body: String,
-                    pathParams: Seq[(String, Any)])
-  case class Response(protocol: String, status: Status, headers: Headers, body: String)
-
-  def request(settings: RestDocSettings, restRequest: RestRequest)(implicit materializer: Materializer): Request = {
+  private def request(settings: RestDocSettings, restRequest: RestRequest)(implicit materializer: Materializer): Request = {
     val request = restRequest.request
     val pathParams = restRequest.params
 
@@ -38,7 +42,7 @@ object converter {
     )
   }
 
-  def response(response: HttpResponse)(implicit materializer: Materializer): Response = {
+  private def response(response: HttpResponse)(implicit materializer: Materializer): Response = {
     val responseEntity = entity(response.entity)
 
     Response(
@@ -54,15 +58,13 @@ object converter {
 
   private case class Entity(contentType: ContentType, content: String) {
 
-    def headers =
-      Seq(
-        (Header("Content-Type", contentType.toString()), ContentTypes.NoContentType.ne(contentType)),
-        (Header("Content-Length", content.length.toString), content.length > 0)
-      ).filter(_._2).map(_._1)
+    def headers = Seq(
+      (Header("Content-Type", contentType.toString()), ContentTypes.NoContentType.ne(contentType)),
+      (Header("Content-Length", content.length.toString), content.length > 0)
+    ).filter(_._2).map(_._1)
 
   }
 
   private def entity(entity: ResponseEntity)(implicit materializer: Materializer): Entity =
     Await.result(entity.toStrict(duration).map(strict => Entity(entity.contentType, strict.data.utf8String)), duration)
-
 }
