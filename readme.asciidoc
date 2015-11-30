@@ -1,4 +1,6 @@
-= akka-http-restdocs
+
+
+= akka-http-restdocsimage:https://travis-ci.org/grzesiekw/akka-http-restdocs.svg?branch=master["Build Status", link="https://travis-ci.org/grzesiekw/akka-http-restdocs"] image:https://coveralls.io/repos/grzesiekw/akka-http-restdocs/badge.svg?branch=master&service=github["Coverage Status", link="https://coveralls.io/github/grzesiekw/akka-http-restdocs?branch=master"]
 
 == Example
 
