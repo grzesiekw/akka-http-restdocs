@@ -7,9 +7,9 @@ version := "0.1"
 scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" % "akka-http-experimental_2.11" % "2.0-M1",
-  "com.typesafe.akka" % "akka-http-spray-json-experimental_2.11" % "2.0-M1",
-  "com.typesafe.akka" % "akka-http-testkit-experimental_2.11" % "2.0-M1",
+  "com.typesafe.akka" % "akka-http-experimental_2.11" % "2.0-M2",
+  "com.typesafe.akka" % "akka-http-spray-json-experimental_2.11" % "2.0-M2",
+  "com.typesafe.akka" % "akka-http-testkit-experimental_2.11" % "2.0-M2",
 
   "org.scalatest" %% "scalatest" % "2.2.4" % "test",
 
