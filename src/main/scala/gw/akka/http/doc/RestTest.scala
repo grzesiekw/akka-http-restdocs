@@ -13,7 +13,7 @@ case class Header(name: String, value: String) {
 }
 
 case class Request(host: String, uri: String, protocol: String, method: String, headers: Seq[Header], body: String,
-                   pathParams: Seq[(String, Any)])
+                   requestParams: Seq[(String, Any)] = Seq(), pathParams: Seq[(String, Any)] = Seq())
 case class Response(protocol: String, status: Status, headers: Seq[Header], body: String)
 
 case class RestTest(request: Request, response: Response)
@@ -27,8 +27,6 @@ object RestTest {
 
   private def request(settings: RestDocSettings, restRequest: RestRequest)(implicit materializer: Materializer): Request = {
     val request = restRequest.request
-    val pathParams = restRequest.params
-
     val requestEntity = entity(request.entity)
 
     Request(
@@ -38,7 +36,8 @@ object RestTest {
       request.method.name,
       requestEntity.headers ++ headers(request.headers),
       requestEntity.content,
-      pathParams
+      restRequest.queryParams,
+      restRequest.pathParams
     )
   }
 

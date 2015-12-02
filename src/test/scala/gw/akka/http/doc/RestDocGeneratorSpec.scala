@@ -11,7 +11,7 @@ class RestDocGeneratorSpec extends WordSpec with Matchers {
     "create all known documents" in {
       val documents = RestDocGenerator(knownGenerators).generate(test)
 
-      documents.map(_.name) shouldBe Seq("http-request", "http-response", "curl-request", "path-parameters")
+      documents.map(_.name) shouldBe Seq("http-request", "http-response", "curl-request", "request-parameters", "path-parameters")
     }
   }
 

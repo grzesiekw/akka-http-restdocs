@@ -23,7 +23,8 @@ abstract class NamedGenerator[A](val name: String) extends Generator[A]
 
 object DocumentGenerator {
 
-  val knownGenerators = Seq(HttpRequestGenerator, HttpResponseGenerator, CurlGenerator, PathParametersGenerator)
+  val knownGenerators = Seq(HttpRequestGenerator, HttpResponseGenerator, CurlGenerator,
+                            RequestParametersGenerator, PathParametersGenerator)
 
   object HttpRequestGenerator extends NamedGenerator[Document]("http-request") {
     override def generate(test: RestTest): Document = {
@@ -85,7 +86,7 @@ object DocumentGenerator {
       }
 
       Document(
-        "curl-request",
+        name,
         s"""
            |[source,bash]
            |----
@@ -97,14 +98,16 @@ object DocumentGenerator {
     }
   }
 
-  object PathParametersGenerator extends NamedGenerator[Document]("path-parameters") {
+  abstract class ParametersGenerator(name: String, description: String) extends NamedGenerator[Document](name) {
+    def parameters(test: RestTest): Seq[(String, Any)]
+
     override def generate(test: RestTest): Document = {
-      val params = test.request.pathParams
+      val params = parameters(test)
 
       Document(
-        "path-parameters",
+        name,
         s"""
-           |.Path parameters
+           |.$description
            |[format="csv", options="header"]
            ||===
            |Name,Value,Type
@@ -114,6 +117,14 @@ object DocumentGenerator {
       )
     }
   }
+
+  object PathParametersGenerator extends ParametersGenerator("path-parameters", "Path parameters") {
+    override def parameters(test: RestTest): Seq[(String, Any)] = test.request.pathParams
+  }
+  object RequestParametersGenerator extends ParametersGenerator("request-parameters", "Request parameters") {
+    override def parameters(test: RestTest): Seq[(String, Any)] = test.request.requestParams
+  }
+
 
   private implicit class Eolns(s: String) {
     def eolnIfNonEmpty = if (s.isEmpty) s else s + "\n"
