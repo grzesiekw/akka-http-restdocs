@@ -46,7 +46,7 @@ class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest
     }
 
     "say query Hi to query John" in {
-      Get("/say?message={message}&name={name}").params("Hi", "John") ~~> route ~~> check {
+      Get("/say?message={message}&name={name}&optional=true").params("Hi", "John") ~~> route ~~> check {
         responseAs[String] shouldEqual "Hi John!"
       } ~~> doc("query-message-with-query-name")
     }
