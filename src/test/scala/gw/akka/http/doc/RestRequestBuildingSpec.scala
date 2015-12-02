@@ -17,7 +17,7 @@ class RestRequestBuildingSpec extends WordSpec with Matchers with RestRequestBui
     "extract parameters" in {
       val restRequest = requestBuilder.params("A", 1, false)
 
-      restRequest.params shouldBe Seq(("a", "A"), ("b", 1), ("c", false))
+      restRequest.pathParams shouldBe Seq(("a", "A"), ("b", 1), ("c", false))
     }
   }
 

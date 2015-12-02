@@ -18,7 +18,7 @@ class RestTestSpec extends WordSpec with Matchers with ScalatestRouteTest {
 
   val body = "content"
 
-  val test = RestTest(settings, RestRequest(Post("/hello", body).withHeaders(Seq(Accept(MediaTypes.`text/plain`))), Seq()), HttpResponse(OK, Seq(), Strict(`text/plain(UTF-8)`, ByteString(body))))
+  val test = RestTest(settings, RestRequest(Post("/hello", body).withHeaders(Seq(Accept(MediaTypes.`text/plain`)))), HttpResponse(OK, Seq(), Strict(`text/plain(UTF-8)`, ByteString(body))))
 
   "RestTest" should {
     "copy request uri" in {

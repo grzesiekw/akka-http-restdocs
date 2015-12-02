@@ -44,6 +44,12 @@ class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest
         status shouldBe BadRequest
       } ~~> doc("hello-set-too-short-name")
     }
+
+    "say query Hi to query John" in {
+      Get("/say?message={message}&name={name}&optional=true").params("Hi", "John") ~~> route ~~> check {
+        responseAs[String] shouldEqual "Hi John!"
+      } ~~> doc("query-message-with-query-name")
+    }
   }
 
 }

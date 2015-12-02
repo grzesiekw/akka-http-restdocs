@@ -35,7 +35,7 @@ trait RestDoc extends RestRequestBuilding {
 
   implicit class RequestWithTransformation(request: HttpRequest) {
     def ~~>[A, B](f: A => B)(implicit ta: TildeArrow[A, B]): (RestRequest, ta.Out) = {
-      (RestRequest(request, Seq()), ta(request, f))
+      (RestRequest(request), ta(request, f))
     }
   }
 
