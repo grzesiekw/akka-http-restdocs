@@ -20,7 +20,7 @@ include::generated-snippets/hello-with-path-name/curl-request.adoc[]
 
 include::generated-snippets/hello-with-path-name/http-request.adoc[]
 
-include::generated-snippets/hello-with-path-name/http-request-path-parameters.adoc[]
+include::generated-snippets/hello-with-path-name/path-parameters.adoc[]
 
 include::generated-snippets/hello-with-path-name/http-response.adoc[]
 
@@ -30,10 +30,19 @@ include::generated-snippets/path-message-with-path-name/curl-request.adoc[]
 
 include::generated-snippets/path-message-with-path-name/http-request.adoc[]
 
-include::generated-snippets/path-message-with-path-name/http-request-path-parameters.adoc[]
+include::generated-snippets/path-message-with-path-name/path-parameters.adoc[]
 
 include::generated-snippets/path-message-with-path-name/http-response.adoc[]
 
+.query message with query name
+
+include::generated-snippets/query-message-with-query-name/curl-request.adoc[]
+
+include::generated-snippets/query-message-with-query-name/http-request.adoc[]
+
+include::generated-snippets/query-message-with-query-name/request-parameters.adoc[]
+
+include::generated-snippets/query-message-with-query-name/http-response.adoc[]
 
 .Hello set name
 
