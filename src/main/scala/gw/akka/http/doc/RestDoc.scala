@@ -1,14 +1,11 @@
 package gw.akka.http.doc
 
 import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.testkit.RouteTest
+import akka.http.scaladsl.testkit.{RouteTest, TestFrameworkInterface}
 import com.typesafe.config.Config
 
-import scala.annotation.tailrec
-
-trait RestDoc extends RestRequestBuilding {
-  this: RouteTest =>
+trait RestDoc extends RouteTest with RestRequestBuilding {
+  this: TestFrameworkInterface =>
 
   import writer._
 
@@ -22,25 +19,25 @@ trait RestDoc extends RestRequestBuilding {
   }
 
   implicit class DocTransformation[R](requestWithResult: ((R, RouteTestResult), Unit)) {
-    def ~~>[A](f: (R, RouteTestResult) => A) = {
+    def ~>[A](f: (R, RouteTestResult) => A) = {
       f(requestWithResult._1._1, requestWithResult._1._2)
     }
   }
 
   implicit class RequestValueWithTransformation[A, R](requestWithValue: (R, A)) {
-    def ~~>[B](f: A => B): ((R, A), B) = {
+    def ~>[B](f: A => B): ((R, A), B) = {
       (requestWithValue, f(requestWithValue._2))
     }
   }
 
   implicit class RequestWithTransformation(request: HttpRequest) {
-    def ~~>[A, B](f: A => B)(implicit ta: TildeArrow[A, B]): (RestRequest, ta.Out) = {
+    def ~>[A, B](f: A => B)(implicit ta: TildeArrow[A, B]): (RestRequest, ta.Out) = {
       (RestRequest(request), ta(request, f))
     }
   }
 
   implicit class RestRequestWithTransformation(request: RestRequest) {
-    def ~~>[A, B](f: A => B)(implicit ta: TildeArrow[A, B]): (RestRequest, ta.Out) = {
+    def ~>[A, B](f: A => B)(implicit ta: TildeArrow[A, B]): (RestRequest, ta.Out) = {
       (request, ta(request.request, f))
     }
   }

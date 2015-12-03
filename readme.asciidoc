@@ -8,18 +8,17 @@
 
 [source, scala]
 ----
-class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest
-  with HelloRoute with RestDoc { <1>
+class HelloRouteSpec extends WordSpec with Matchers with ScalatestRouteTest with RestDoc
+  with HelloRoute { <1>
 
   "Hello service" should {
     "say hello to the World (default)" in {
-      Get("/hello") ~~> route ~~> check { <2>
+      Get("/hello") ~> route ~> check {
         responseAs[String] shouldEqual "Hello World!"
-      } ~~> doc("hello") <3>
+      } ~> doc("hello") <2>
     }
   }
 }
 ----
 <1> with RestDoc trait
-<2> replace ~> with ~~>
-<3> add doc("test-name")
+<2> add doc("test-name")
