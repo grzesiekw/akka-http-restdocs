@@ -1,61 +1,63 @@
+:snippets: ../../target/generated-snippets
+
 .Hello
 
-include::generated-snippets/hello/curl-request.adoc[]
+include::{snippets}/hello/curl-request.adoc[]
 
-include::generated-snippets/hello/http-request.adoc[]
+include::{snippets}/hello/http-request.adoc[]
 
-include::generated-snippets/hello/http-response.adoc[]
+include::{snippets}/hello/http-response.adoc[]
 
 .Hello with name
 
-include::generated-snippets/hello-with-name/curl-request.adoc[]
+include::{snippets}/hello-with-name/curl-request.adoc[]
 
-include::generated-snippets/hello-with-name/http-request.adoc[]
+include::{snippets}/hello-with-name/http-request.adoc[]
 
-include::generated-snippets/hello-with-name/http-response.adoc[]
+include::{snippets}/hello-with-name/http-response.adoc[]
 
 .Hello with path name
 
-include::generated-snippets/hello-with-path-name/curl-request.adoc[]
+include::{snippets}/hello-with-path-name/curl-request.adoc[]
 
-include::generated-snippets/hello-with-path-name/http-request.adoc[]
+include::{snippets}/hello-with-path-name/http-request.adoc[]
 
-include::generated-snippets/hello-with-path-name/path-parameters.adoc[]
+include::{snippets}/hello-with-path-name/path-parameters.adoc[]
 
-include::generated-snippets/hello-with-path-name/http-response.adoc[]
+include::{snippets}/hello-with-path-name/http-response.adoc[]
 
 .path message with path name
 
-include::generated-snippets/path-message-with-path-name/curl-request.adoc[]
+include::{snippets}/path-message-with-path-name/curl-request.adoc[]
 
-include::generated-snippets/path-message-with-path-name/http-request.adoc[]
+include::{snippets}/path-message-with-path-name/http-request.adoc[]
 
-include::generated-snippets/path-message-with-path-name/path-parameters.adoc[]
+include::{snippets}/path-message-with-path-name/path-parameters.adoc[]
 
-include::generated-snippets/path-message-with-path-name/http-response.adoc[]
+include::{snippets}/path-message-with-path-name/http-response.adoc[]
 
 .query message with query name
 
-include::generated-snippets/query-message-with-query-name/curl-request.adoc[]
+include::{snippets}/query-message-with-query-name/curl-request.adoc[]
 
-include::generated-snippets/query-message-with-query-name/http-request.adoc[]
+include::{snippets}/query-message-with-query-name/http-request.adoc[]
 
-include::generated-snippets/query-message-with-query-name/request-parameters.adoc[]
+include::{snippets}/query-message-with-query-name/request-parameters.adoc[]
 
-include::generated-snippets/query-message-with-query-name/http-response.adoc[]
+include::{snippets}/query-message-with-query-name/http-response.adoc[]
 
 .Hello set name
 
-include::generated-snippets/hello-set-name/curl-request.adoc[]
+include::{snippets}/hello-set-name/curl-request.adoc[]
 
-include::generated-snippets/hello-set-name/http-request.adoc[]
+include::{snippets}/hello-set-name/http-request.adoc[]
 
-include::generated-snippets/hello-set-name/http-response.adoc[]
+include::{snippets}/hello-set-name/http-response.adoc[]
 
 .Hello set too short name
 
-include::generated-snippets/hello-set-too-short-name/curl-request.adoc[]
+include::{snippets}/hello-set-too-short-name/curl-request.adoc[]
 
-include::generated-snippets/hello-set-too-short-name/http-request.adoc[]
+include::{snippets}/hello-set-too-short-name/http-request.adoc[]
 
-include::generated-snippets/hello-set-too-short-name/http-response.adoc[]
+include::{snippets}/hello-set-too-short-name/http-response.adoc[]
