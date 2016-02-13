@@ -1,24 +1,19 @@
 organization := "gw"
 
-name := "akka-http-restdocs"
+name := "akka-http-restdoc"
 
 version := "0.1"
 
 scalaVersion := "2.11.7"
 
+val akkaHttpVersion = "2.0.3"
+
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" % "akka-http-experimental_2.11" % "2.0-M2",
-  "com.typesafe.akka" % "akka-http-spray-json-experimental_2.11" % "2.0-M2",
-  "com.typesafe.akka" % "akka-http-testkit-experimental_2.11" % "2.0-M2",
+  "com.typesafe.akka" % "akka-http-experimental_2.11" % akkaHttpVersion,
+  "com.typesafe.akka" % "akka-http-spray-json-experimental_2.11" % akkaHttpVersion,
+  "com.typesafe.akka" % "akka-http-testkit-experimental_2.11" % akkaHttpVersion,
 
-  "org.scalatest" %% "scalatest" % "2.2.4" % "test",
-
-  "org.scala-lang" % "scala-reflect" % "2.11.7",
-  "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.4"
+  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 )
-
-enablePlugins(AsciidoctorPlugin)
-
-sourceDirectory in Asciidoctor := file("src/asciidoctor")
 
 triggeredMessage := Watched.clearWhenTriggered
