@@ -1,8 +1,7 @@
-package example
+package example.hello
 
 import akka.http.scaladsl.model.StatusCodes.{BadRequest, OK}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import example.hello.{Name, HelloRoute}
 import gw.akka.http.doc.RestDoc
 import org.scalatest.{Matchers, WordSpec}
 

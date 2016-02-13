@@ -4,7 +4,7 @@
 
 == Example
 
-(from: src/test/scala/gw/akka/http/example/hello/HelloRouteSpec.scala)
+(from: examples/src/test/scala/example/hello/HelloRouteSpec.scala)
 
 [source, scala]
 ----
