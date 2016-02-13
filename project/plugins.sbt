@@ -6,3 +6,5 @@ resolvers += Resolver.url("sbt-bintray", url("https://dl.bintray.com/sbt/sbt-plu
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.0.4")
 
 addSbtPlugin("org.scoverage" % "sbt-coveralls" % "1.0.0")
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.0.0-RC2")

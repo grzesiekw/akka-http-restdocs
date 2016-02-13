@@ -16,7 +16,6 @@ class RestDocSpec extends WordSpec with Matchers with ScalatestRouteTest with Re
   "RestDoc" should {
     "move request with result to doc" in {
       Get("/test") ~> route ~> check {
-
         status shouldBe OK
       } ~> doc("test")
     }
